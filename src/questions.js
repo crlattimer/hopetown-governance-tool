@@ -1,5 +1,7 @@
-// 25-question survey schema for the AI Governance Policy Builder.
+// 30-question survey schema for the AI Governance Policy Builder.
 // Each section becomes one step in the multi-step form.
+// Question numbers are stable IDs (the displayed numbers may not be strictly
+// sequential top-to-bottom because Step 6 was inserted after the original 25).
 
 export const sections = [
   {
@@ -41,7 +43,7 @@ export const sections = [
         id: 'serves_vulnerable',
         number: 4,
         label:
-          'Do you serve vulnerable populations such as people in recovery, individuals experiencing housing instability, children, or people with disabilities?',
+          'Do you serve populations that may have limited power in their relationship with your organization, such as children, elderly individuals, people experiencing hardship, or others in a dependent relationship with your services?',
         type: 'single',
         required: true,
         options: ['Yes', 'No'],
@@ -81,9 +83,9 @@ export const sections = [
         required: false,
         options: [
           'Internal communications and drafting',
-          'Program reporting and grant writing',
-          'Client or resident intake and screening',
-          'Case management or service coordination',
+          'Reporting, grant writing, or proposals',
+          'Intake, screening, or onboarding the people you serve',
+          'Case management, service coordination, or operations',
           'HR and hiring',
           'Training and staff development',
           'Public communications and social media',
@@ -106,7 +108,7 @@ export const sections = [
         type: 'single',
         required: true,
         options: [
-          'Executive Director or CEO',
+          'Executive Director, CEO, or equivalent leader',
           'IT staff or department',
           'A committee',
           'One designated staff member',
@@ -117,10 +119,10 @@ export const sections = [
         id: 'board_approval',
         number: 10,
         label:
-          'Does your board of directors need to approve major technology or policy decisions?',
+          'Does your board, ownership, or other governing body need to approve major technology or policy decisions?',
         type: 'single',
         required: true,
-        options: ['Yes', 'No', "We don't have a formal board"],
+        options: ['Yes', 'No', "We don't have a formal governing body"],
       },
     ],
   },
@@ -135,8 +137,8 @@ export const sections = [
         required: true,
         options: [
           'Writing and communications',
-          'Program data and reporting',
-          'Client or resident-facing interactions',
+          'Program or operational data and reporting',
+          'Interactions with the people you serve, clients, or customers',
           'Intake screening or eligibility decisions',
           'Internal knowledge management',
           'HR and hiring processes',
@@ -148,7 +150,7 @@ export const sections = [
         id: 'affects_clients',
         number: 12,
         label:
-          'Do you anticipate using AI in any decisions that directly affect clients, residents, or program participants?',
+          'Do you anticipate using AI in any decisions that directly affect the people you serve, clients, customers, or community members?',
         type: 'single',
         required: true,
         options: ['Yes', 'No', 'Possibly'],
@@ -157,7 +159,7 @@ export const sections = [
         id: 'client_facing',
         number: 13,
         label:
-          'Will any AI tools be used in interactions directly with the people you serve?',
+          'Will any AI tools be used in interactions directly with the people you serve, your clients, customers, or community members?',
         type: 'single',
         required: true,
         options: ['Yes', 'No', 'Possibly'],
@@ -210,7 +212,7 @@ export const sections = [
         id: 'consent_asymmetry',
         number: 18,
         label:
-          'Are the people you serve ever in situations where their consent might be influenced by their relationship with your organization — for example, consent tied to housing, services, or program participation?',
+          'Are the people you serve ever in situations where their ability to freely decline your services may be limited — for example, due to financial dependence, age, institutional setting, or other power dynamics?',
         type: 'single',
         required: true,
         options: ['Yes', 'No', 'Sometimes'],
@@ -219,7 +221,7 @@ export const sections = [
         id: 'certified_staff',
         number: 19,
         label:
-          'Do any of your staff hold professional certifications with their own ethics codes, such as peer recovery supporters, social workers, or licensed counselors?',
+          'Do any of your staff hold professional certifications with their own ethics codes — for example, licensed counselors, social workers, attorneys, accountants, healthcare providers, educators, or other credentialed professionals?',
         type: 'single',
         required: true,
         options: ['Yes', 'No', 'Not sure'],
@@ -231,7 +233,7 @@ export const sections = [
         type: 'textarea',
         required: false,
         placeholder:
-          'If yes, briefly describe (e.g. Ohio recovery housing certification, state licensing requirements). Leave blank if not applicable.',
+          'If yes, briefly describe (e.g. state licensing requirements, sector-specific regulations). Leave blank if not applicable.',
       },
       {
         id: 'existing_policies',
@@ -254,6 +256,89 @@ export const sections = [
     ],
   },
   {
+    title: 'AI Risk and Values',
+    questions: [
+      {
+        id: 'risk_culture',
+        number: 26,
+        label:
+          "How would you describe your organization's current culture around risk and new technology?",
+        type: 'single',
+        required: true,
+        options: [
+          'We move fast and figure it out as we go',
+          "We're cautious and prefer established practices",
+          "We're somewhere in the middle",
+          "We're not sure",
+        ],
+      },
+      {
+        id: 'compliance_capacity',
+        number: 27,
+        label:
+          'Do you currently have any staff dedicated to compliance, legal, or risk management?',
+        type: 'single',
+        required: true,
+        options: [
+          'Yes, dedicated staff',
+          'We use outside counsel or consultants',
+          'No but someone handles it informally',
+          'No capacity at all',
+        ],
+      },
+      {
+        id: 'communication_channels',
+        number: 28,
+        label: 'How do you currently communicate with the people you serve or your customers?',
+        type: 'multi',
+        required: true,
+        options: [
+          'In-person meetings or appointments',
+          'Phone or video calls',
+          'Email',
+          'SMS or messaging apps',
+          'A website or online portal',
+          'Physical mail',
+          'Social media',
+          "We don't have direct communication with end users",
+        ],
+      },
+      {
+        id: 'prohibited_uses',
+        number: 29,
+        label:
+          'Are there any AI use cases you want to explicitly prohibit in your organization right now?',
+        type: 'multi',
+        required: true,
+        options: [
+          "Making decisions that affect people's access to services",
+          'Replacing human judgment in sensitive situations',
+          'Generating content that represents your organization publicly without review',
+          'Using personal data without explicit consent',
+          'Facial recognition or biometric data',
+          'Automated hiring or HR decisions',
+          'None of the above',
+          'Other',
+        ],
+      },
+      {
+        id: 'success_definition',
+        number: 30,
+        label: 'What does success look like for your AI governance policy?',
+        type: 'multi',
+        required: true,
+        options: [
+          "Staff know what they can and can't do with AI",
+          'Leadership has clear oversight of AI use',
+          'The people we serve feel protected',
+          'Funders and partners trust our AI practices',
+          'We avoid costly mistakes or incidents',
+          "We're positioned to adopt AI responsibly as it evolves",
+        ],
+      },
+    ],
+  },
+  {
     title: 'Policy Intent',
     questions: [
       {
@@ -263,7 +348,7 @@ export const sections = [
         type: 'single',
         required: true,
         options: [
-          'Executive Director or CEO',
+          'Executive Director, CEO, or equivalent leader',
           'A designated staff member',
           'An IT or compliance team',
           'A committee',

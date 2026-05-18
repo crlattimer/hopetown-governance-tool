@@ -66,7 +66,19 @@ regulatory_context: A string naming the specific regulatory frameworks that appl
 
 incident_response: A string describing a three-tier incident response framework with timelines appropriate to their org size. Small orgs (1-50 staff): Low = 5 business days, Medium = 48 hours, High = immediate.
 
-next_steps: An array of 3-5 strings. Prioritized action items based on their answers. Always include at least one training step and one accountability step. Make these specific and actionable.
+prohibited_uses_section: A string, or omit this field entirely if question 29 contains only "None of the above". If included, write a clear "Prohibited Uses" subsection that names each prohibition they selected in question 29 and gives a one-sentence rationale for each, tailored to their organization. If they selected "Other" without specifying, prompt them in the text to define what falls under that category.
+
+next_steps: An array of 3-5 strings. Prioritized action items based on their answers. Always include at least one training step and one accountability step. Make these specific and actionable. Reflect their success criteria from question 30 — the next steps should map toward the outcomes they said matter.
+
+HOW TO USE THE NEW CONTEXT QUESTIONS:
+
+- Question 26 (risk culture): If they said "We move fast", emphasize guardrails and review steps without being preachy. If they said "We're cautious", emphasize that the policy lowers risk of getting it wrong and that adoption can be gradual. If "in the middle" or "not sure", calibrate to a balanced tone.
+
+- Question 27 (compliance capacity): Inform the accountability_structure and regulatory_context fields. If "No capacity at all" or "informally", recommend lightweight, low-overhead governance approaches and explicitly note that this is a starting point that can grow. If "outside counsel", explicitly recommend they involve counsel in the review of this policy. If "Yes, dedicated staff", you can recommend slightly more formal review cycles.
+
+- Question 28 (communication channels): Inform resident_or_client_rights — disclosure of AI use should happen in the channels they actually use with the people they serve. Name those channels specifically.
+
+- Question 30 (success definition): Use this to shape the executive_summary closing and the next_steps. If "Staff know what they can and can't do", training is a top next step. If "Leadership oversight", accountability_structure should be prominent. If "The people we serve feel protected", consent_considerations and resident_or_client_rights should be substantive even if power asymmetry is low.
 
 WHAT TO AVOID:
 - Do not invent specific staff names — use role titles only
@@ -90,6 +102,7 @@ const FIELD_ORDER = [
   { key: 'language_harm_note', title: 'Language and Harm Reduction', kind: 'paragraphs' },
   { key: 'regulatory_context', title: 'Regulatory Context', kind: 'paragraphs' },
   { key: 'incident_response', title: 'Incident Response', kind: 'paragraphs' },
+  { key: 'prohibited_uses_section', title: 'Prohibited Uses', kind: 'paragraphs' },
   { key: 'next_steps', title: 'Next Steps', kind: 'bullets' },
 ];
 
@@ -305,37 +318,47 @@ function buildBodyContent(policy) {
 }
 
 function buildDocument(policy) {
-  const footer = new Footer({
-    children: [
-      new Paragraph({
-        alignment: AlignmentType.CENTER,
-        children: [
-          new TextRun({
-            text: 'Generated at the Ohio AI Leadership Summit · Hope Town · hopetown.org',
-            font: FONT,
-            size: 18, // 9pt
-            color: '6B7F86',
-          }),
-        ],
-      }),
-    ],
-  });
+  // Build fresh Footer/Header instances per section — reusing the same JS
+  // object across sections causes some Word renderers to inline the footer
+  // as plain text at the end of the document.
+  const makeFooter = () =>
+    new Footer({
+      children: [
+        new Paragraph({
+          alignment: AlignmentType.CENTER,
+          children: [
+            new TextRun({
+              text: 'Generated at the Ohio AI Leadership Summit · Hope Town · hopetown.org',
+              font: FONT,
+              size: 18, // 9pt
+              color: '6B7F86',
+            }),
+          ],
+        }),
+      ],
+    });
 
-  const header = new Header({
-    children: [
-      new Paragraph({
-        alignment: AlignmentType.RIGHT,
-        children: [
-          new TextRun({
-            text: `${policy.org_name || 'Organization'} · AI Governance Policy v1.0`,
-            font: FONT,
-            size: 18,
-            color: '6B7F86',
-          }),
-        ],
-      }),
-    ],
-  });
+  const makeHeader = () =>
+    new Header({
+      children: [
+        new Paragraph({
+          alignment: AlignmentType.RIGHT,
+          children: [
+            new TextRun({
+              text: `${policy.org_name || 'Organization'} · AI Governance Policy v1.0`,
+              font: FONT,
+              size: 18,
+              color: '6B7F86',
+            }),
+          ],
+        }),
+      ],
+    });
+
+  const makeEmptyHeader = () =>
+    new Header({
+      children: [new Paragraph({ children: [new TextRun({ text: '', font: FONT })] })],
+    });
 
   return new Document({
     creator: 'Hope Town · AI Governance Policy Builder',
@@ -395,8 +418,8 @@ function buildDocument(policy) {
           },
           titlePage: true,
         },
-        footers: { default: footer },
-        headers: { first: new Header({ children: [new Paragraph({ children: [new TextRun({ text: '', font: FONT })] })] }) },
+        footers: { default: makeFooter() },
+        headers: { first: makeEmptyHeader() },
         children: titlePage(policy.org_name),
       },
       // Body — header + footer on every page.
@@ -416,8 +439,8 @@ function buildDocument(policy) {
             },
           },
         },
-        headers: { default: header },
-        footers: { default: footer },
+        headers: { default: makeHeader() },
+        footers: { default: makeFooter() },
         children: buildBodyContent(policy),
       },
     ],
