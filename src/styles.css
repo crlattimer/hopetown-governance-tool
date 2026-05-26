@@ -314,10 +314,11 @@ a {
 .question input[type='text'],
 .question textarea {
   width: 100%;
-  padding: 11px 12px;
+  padding: 12px 14px;
   border: 1px solid var(--border);
   border-radius: 8px;
-  font-size: 15px;
+  /* 16px prevents iOS Safari from auto-zooming when the field is focused. */
+  font-size: 16px;
   font-family: inherit;
   background: #fff;
   color: var(--ink);
@@ -340,12 +341,13 @@ a {
   display: flex;
   align-items: flex-start;
   gap: 10px;
-  padding: 10px 12px;
+  padding: 12px 14px;
   border: 1px solid var(--border);
   border-radius: 8px;
   cursor: pointer;
   background: #fff;
-  font-size: 14px;
+  font-size: 16px;
+  min-height: 44px;
   transition: background 120ms ease, border-color 120ms ease;
 }
 
@@ -376,11 +378,16 @@ a {
 .btn-primary,
 .btn-secondary,
 .btn-link {
-  font-size: 15px;
+  font-size: 16px;
   font-weight: 600;
   border-radius: 8px;
-  padding: 11px 22px;
+  padding: 12px 22px;
   border: 1px solid transparent;
+  min-height: 44px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  text-decoration: none;
   transition: background 120ms ease, color 120ms ease, border-color 120ms ease;
 }
 
@@ -418,8 +425,13 @@ a {
   background: transparent;
   color: var(--teal);
   border: none;
-  padding: 4px 8px;
-  font-size: 14px;
+  padding: 10px 12px;
+  font-size: 15px;
+  min-height: 44px;
+}
+
+.btn-block {
+  width: 100%;
 }
 
 .btn-link:hover:not(:disabled) {
@@ -527,6 +539,52 @@ a {
   to { transform: rotate(360deg); }
 }
 
+/* Full-card loading state used while the policy is generating. */
+.loading-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  padding: 56px 24px;
+  gap: 22px;
+}
+
+.spinner-large {
+  width: 56px;
+  height: 56px;
+  border: 5px solid rgba(14, 124, 134, 0.18);
+  border-top-color: var(--teal);
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+
+.loading-text {
+  margin: 0;
+  font-size: 16px;
+  color: var(--ink);
+  max-width: 480px;
+  line-height: 1.55;
+}
+
+/* iOS download hint shown next to the manual Download button. */
+.ios-hint {
+  margin: 16px 0 6px;
+  font-size: 14px;
+  color: var(--ink-soft);
+  line-height: 1.5;
+}
+
+/* Stacked actions row (used on download/ready screen so the primary button
+   fills the width on every screen). */
+.actions-stack {
+  flex-direction: column;
+  justify-content: stretch;
+}
+.actions-stack > .btn-primary,
+.actions-stack > .btn-secondary {
+  width: 100%;
+}
+
 /* ---------- Success ---------- */
 .success {
   text-align: center;
@@ -541,6 +599,22 @@ a {
 }
 
 /* ---------- Responsive ---------- */
+/* At tablet width and below, stack any side-by-side button rows so each
+   button is full-width and easy to tap. */
+@media (max-width: 768px) {
+  .actions {
+    flex-direction: column-reverse;
+  }
+  .actions > button,
+  .actions > a {
+    width: 100%;
+  }
+  .review-section-head {
+    flex-wrap: wrap;
+    gap: 6px;
+  }
+}
+
 @media (max-width: 600px) {
   .container {
     padding: 18px 14px 36px;
@@ -551,10 +625,25 @@ a {
   .site-header {
     padding: 12px 16px;
   }
-  .actions {
-    flex-direction: column-reverse;
+  .gate-card {
+    padding: 28px 20px;
   }
-  .actions > button {
-    width: 100%;
+  .gate-card h1 {
+    font-size: 20px;
+  }
+  .brand-title {
+    font-size: 15px;
+  }
+  .question .q-label {
+    font-size: 16px;
+  }
+  .loading-card {
+    padding: 40px 16px;
+  }
+  .review-row dt {
+    font-size: 14px;
+  }
+  .review-row dd {
+    font-size: 16px;
   }
 }

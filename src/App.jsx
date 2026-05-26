@@ -8,7 +8,7 @@ const SESSION_KEY = 'hopetown_gov_authed';
 
 export default function App() {
   const [authed, setAuthed] = useState(false);
-  const [phase, setPhase] = useState('form'); // 'form' | 'review' | 'done'
+  const [phase, setPhase] = useState('form'); // 'form' | 'review'
   const [step, setStep] = useState(0);
   const [answers, setAnswers] = useState(emptyAnswers);
 
@@ -58,23 +58,8 @@ export default function App() {
               setStep(idx);
               setPhase('form');
             }}
-            onDone={() => setPhase('done')}
             onStartOver={handleStartOver}
           />
-        )}
-        {phase === 'done' && (
-          <section className="card success">
-            <h2>Your policy is on its way</h2>
-            <p>
-              Your AI governance policy has been downloaded as a Word document. Review it
-              carefully with your team and legal counsel before formal adoption.
-            </p>
-            <div className="actions">
-              <button className="btn-primary" onClick={handleStartOver}>
-                Start a new policy
-              </button>
-            </div>
-          </section>
         )}
       </main>
 

@@ -494,6 +494,18 @@ export default async function handler(req, res) {
     if (!textBlock) throw new Error('Model returned no text content.');
     policy = extractJson(textBlock.text);
   } catch (err) {
+    // Surface Anthropic rate-limit errors as 429 so the client can retry
+    // with exponential backoff and show the rate-limit message to the user.
+    const status = err && (err.status || err.statusCode);
+    if (status === 429) {
+      console.warn(
+        JSON.stringify({ event: 'anthropic_rate_limited', ts: new Date().toISOString() }),
+      );
+      return res.status(429).json({
+        error:
+          "We're getting a lot of traffic right now. Your plan will be ready in about a minute — please wait.",
+      });
+    }
     console.error('Anthropic generation failed:', err);
     const friendly =
       'We weren\'t able to generate your policy right now. Please try again in a moment.';
@@ -515,6 +527,16 @@ export default async function handler(req, res) {
       `attachment; filename="${safeFilename(policy.org_name)}"`,
     );
     res.setHeader('Content-Length', buffer.length);
+    // Helps iOS Safari honor the attachment disposition instead of sniffing
+    // and opening the .docx inline.
+    res.setHeader('X-Content-Type-Options', 'nosniff');
+
+    // Usage counter: one log line per successful generation, no PII.
+    // Visible in Vercel runtime logs to count plans generated during the summit.
+    console.log(
+      JSON.stringify({ event: 'plan_generated', ts: new Date().toISOString() }),
+    );
+
     return res.status(200).send(buffer);
   } catch (err) {
     console.error('Docx build failed:', err);
