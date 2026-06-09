@@ -42,86 +42,6 @@ a {
   color: var(--teal);
 }
 
-/* ---------- Password Gate ---------- */
-.gate-wrap {
-  min-height: 100vh;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 24px;
-}
-
-.gate-card {
-  background: var(--card);
-  border-radius: var(--radius);
-  box-shadow: var(--shadow);
-  padding: 40px 32px;
-  max-width: 440px;
-  width: 100%;
-  text-align: center;
-}
-
-.gate-card h1 {
-  margin: 16px 0 8px;
-  font-size: 22px;
-  color: var(--ink);
-}
-
-.gate-sub {
-  color: var(--muted);
-  margin: 0 0 24px;
-  font-size: 15px;
-}
-
-.gate-form {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-  text-align: left;
-}
-
-.gate-form label {
-  font-weight: 600;
-  font-size: 14px;
-  color: var(--ink-soft);
-}
-
-.gate-form input {
-  padding: 12px 14px;
-  border: 1px solid var(--border);
-  border-radius: 8px;
-  font-size: 16px;
-  background: #fff;
-}
-
-.gate-form input:focus {
-  outline: 2px solid var(--teal);
-  outline-offset: 1px;
-  border-color: var(--teal);
-}
-
-.gate-form button {
-  margin-top: 8px;
-}
-
-.gate-error {
-  background: var(--danger-soft);
-  color: var(--danger);
-  border-radius: 6px;
-  padding: 8px 12px;
-  font-size: 14px;
-}
-
-.gate-footer {
-  margin-top: 28px;
-  font-size: 12px;
-  color: var(--muted);
-}
-
-.gate-mark {
-  margin: 0 auto;
-}
-
 /* ---------- Brand mark ---------- */
 .brand-mark {
   display: inline-flex;
@@ -624,12 +544,6 @@ a {
   }
   .site-header {
     padding: 12px 16px;
-  }
-  .gate-card {
-    padding: 28px 20px;
-  }
-  .gate-card h1 {
-    font-size: 20px;
   }
   .brand-title {
     font-size: 15px;

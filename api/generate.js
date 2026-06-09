@@ -19,6 +19,62 @@ import {
 const MODEL = 'claude-sonnet-4-20250514';
 const FONT = 'Arial';
 
+// ---------- Abuse protection ----------
+// The builder is open (no login), so we guard the Anthropic-backed endpoint
+// against runaway API charges with two tunable limits:
+//   PER_IP_HOURLY_LIMIT  — generations a single IP may run per rolling hour
+//   DAILY_GENERATION_CAP — total generations across all visitors per rolling day
+// Both are configurable via env vars and fall back to sensible defaults.
+//
+// NOTE: counters live in module memory. Vercel may run several function
+// instances in parallel and recycle them on cold starts, so these limits are
+// best-effort — they stop a single abuser and cap a runaway day without an
+// external datastore. For hard, cross-instance guarantees, back this with
+// Vercel KV / Upstash Redis.
+const PER_IP_HOURLY_LIMIT = Number(process.env.PER_IP_HOURLY_LIMIT) || 10;
+const DAILY_GENERATION_CAP = Number(process.env.DAILY_GENERATION_CAP) || 500;
+
+const HOUR_MS = 60 * 60 * 1000;
+const DAY_MS = 24 * 60 * 60 * 1000;
+
+const ipHits = new Map(); // ip -> array of request timestamps within the last hour
+let dailyCount = 0;
+let dailyWindowStart = 0;
+
+function getClientIp(req) {
+  const xff = req.headers['x-forwarded-for'];
+  if (typeof xff === 'string' && xff.length > 0) {
+    return xff.split(',')[0].trim();
+  }
+  return (req.socket && req.socket.remoteAddress) || 'unknown';
+}
+
+// Returns { ok: true } if a generation is allowed for this IP right now, or
+// { ok: false, scope } if a limit is hit. Records the hit when allowed.
+function checkAndRecord(ip, now) {
+  // Roll the daily window forward once a full day has elapsed.
+  if (now - dailyWindowStart >= DAY_MS) {
+    dailyWindowStart = now;
+    dailyCount = 0;
+  }
+  if (dailyCount >= DAILY_GENERATION_CAP) {
+    return { ok: false, scope: 'daily' };
+  }
+
+  // Sliding one-hour window per IP.
+  const recent = (ipHits.get(ip) || []).filter((t) => now - t < HOUR_MS);
+  if (recent.length >= PER_IP_HOURLY_LIMIT) {
+    ipHits.set(ip, recent);
+    return { ok: false, scope: 'ip' };
+  }
+
+  // Allowed — record the hit against both windows.
+  recent.push(now);
+  ipHits.set(ip, recent);
+  dailyCount += 1;
+  return { ok: true };
+}
+
 const SYSTEM_PROMPT = `You are an AI governance policy writer helping organizations create their first AI governance policy. You are writing on behalf of Hope Town, a recovery-focused nonprofit in Ohio that has developed expertise in responsible AI use in mission-driven organizations.
 
 Your job is to take an organization's survey answers and produce a tailored AI governance policy document. The policy should feel specific to their organization — not generic. Use their organization name, reference their org type, reflect their data sensitivity, and calibrate the complexity of the policy to their technical capacity and staff size.
@@ -477,6 +533,20 @@ export default async function handler(req, res) {
   const answers = body && body.answers;
   if (!answers || typeof answers !== 'object') {
     return res.status(400).json({ error: 'Missing answers.' });
+  }
+
+  // Abuse protection: block before incurring any Anthropic charges.
+  const ip = getClientIp(req);
+  const gate = checkAndRecord(ip, Date.now());
+  if (!gate.ok) {
+    console.warn(
+      JSON.stringify({ event: 'rate_limited', scope: gate.scope, ts: new Date().toISOString() }),
+    );
+    const message =
+      gate.scope === 'daily'
+        ? "We've reached today's limit for new policies. Please try again tomorrow."
+        : "You've reached the limit for now. Please try again in a little while.";
+    return res.status(429).json({ error: message });
   }
 
   const client = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });

@@ -1,33 +1,18 @@
-import { useEffect, useState } from 'react';
-import PasswordGate from './PasswordGate.jsx';
+import { useState } from 'react';
 import Form from './Form.jsx';
 import Review from './Review.jsx';
 import { emptyAnswers, sections } from './questions.js';
 
-const SESSION_KEY = 'hopetown_gov_authed';
-
 export default function App() {
-  const [authed, setAuthed] = useState(false);
   const [phase, setPhase] = useState('form'); // 'form' | 'review'
   const [step, setStep] = useState(0);
   const [answers, setAnswers] = useState(emptyAnswers);
-
-  useEffect(() => {
-    if (sessionStorage.getItem(SESSION_KEY) === '1') setAuthed(true);
-  }, []);
-
-  function handleAuthed() {
-    sessionStorage.setItem(SESSION_KEY, '1');
-    setAuthed(true);
-  }
 
   function handleStartOver() {
     setAnswers(emptyAnswers());
     setStep(0);
     setPhase('form');
   }
-
-  if (!authed) return <PasswordGate onAuthed={handleAuthed} />;
 
   return (
     <div className="app">
